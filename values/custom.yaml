@@ -1,0 +1,27 @@
+kyvernoPolicies:
+  values:
+    policies:
+      restrict-image-registries:
+        parameters:
+          allow:
+          - registry1.dso.mil
+          - registry.dso.mil
+          - 127.0.0.1 # zarf registry
+          - ghcr.io   # For Podinfo
+
+istio:
+  ingressGateways:
+    passthrough-ingressgateway:
+      type: "LoadBalancer"
+    tenant-ingressgateway:
+      kubernetesResourceSpec:
+        serviceAnnotations:
+          service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+          service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+  gateways:
+    passthrough:
+      ingressGateway: passthrough-ingressgateway
+      hosts:
+        - "keycloak.{{ .Values.domain }}"
+      tls:
+        mode: "PASSTHROUGH"

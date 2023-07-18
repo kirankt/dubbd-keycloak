@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+kind: ZarfPackageConfig
+metadata:
+  name: dubbd-keycloak
+  description: "Defense Unicorns Big Bang Distro for kind (https://kind.sigs.k8s.io/)"
+  version: "###ZARF_PKG_TMPL_BIGBANG_VERSION###"
+  url: https://p1.dso.mil/products/big-bang
+  image: https://p1.dso.mil/img/Big_Bang_Color_Logo_White_text.de14c793.webp
+  # Big Bang / Iron Bank are only amd64
+  architecture: amd64
+  authors: "@corang, @kiran"
+  source: https://github.com/corang/uds-package-dubbd-kind
+  documentation: https://github.com/defenseunicorns/uds-package-dubbd
+
+variables:
+  - name: HOST_PATH
+    default: "/var/local-path-provisioner/*"
+    prompt: false
+  - name: REALM
+    default: "baby-yoda"
+    prompt: false
+  - name: KC_ADM_USER
+    default: admin
+    prompt: false
+  - name: KC_ADM_PASSWORD
+    default: sup3r-secret-p@ssword
+    prompt: false
+  - name: KEYCLOAK_KEY_FILE
+    default: bigbang.dev.key
+    prompt: false
+  - name: KEYCLOAK_CERT_FILE
+    default: bigbang.dev.cert
+    prompt: false
+  - name: KEYCLOAK_CUSTOMREG_FILE
+    default: assets/customreg.yaml
+    prompt: false
+  - name: KEYCLOAK_REALM_FILE
+    default: assets/realm.json
+    prompt: false
+
+components:
+  - name: load-certs
+    required: true
+    import:
+      name: load-certs
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+    files:
+      - source: scripts/cat_keycloak_cert.sh
+        target: cat_keycloak_cert.sh
+        executable: true
+      - source: scripts/cat_keycloak_key.sh
+        target: cat_keycloak_key.sh
+        executable: true
+    actions:
+      onDeploy:
+        after:
+        - cmd: ./cat_keycloak_cert.sh
+          description: read the cert
+          mute: true
+          setVariables:
+          - name: KEYCLOAK_CERT
+        - cmd: ./cat_keycloak_key.sh
+          description: read the cert
+          mute: true
+          setVariables:
+          - name: KEYCLOAK_KEY
+  - name: preflight
+    required: true
+    import:
+      name: preflight
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+  - name: download-flux
+    required: true
+    import:
+      name: download-flux
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+  - name: bigbang
+    required: true
+    import:
+      name: bigbang
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+    images:
+      - registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.2.1
+      - ghcr.io/kirankt/keycloak-custom-theme:0.1.2
+    extensions:
+      bigbang:
+        version: "###ZARF_PKG_VAR_BIGBANG_VERSION###"
+        valuesFiles:
+        - values/local-dev.yaml
+        - values/keycloak.yaml
+        - values/authservice.yaml
+        - values/custom.yaml
