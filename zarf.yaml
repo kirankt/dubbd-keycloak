@@ -2,83 +2,40 @@
 kind: ZarfPackageConfig
 metadata:
   name: dubbd-keycloak
-  description: "Defense Unicorns Big Bang Distro for kind (https://kind.sigs.k8s.io/)"
+  description: "Defense Unicorns Big Bang Distro with UDS-IDAM for kind (https://kind.sigs.k8s.io/)"
   version: "###ZARF_PKG_TMPL_BIGBANG_VERSION###"
   url: https://p1.dso.mil/products/big-bang
   image: https://p1.dso.mil/img/Big_Bang_Color_Logo_White_text.de14c793.webp
   # Big Bang / Iron Bank are only amd64
   architecture: amd64
-  authors: "@corang, @kiran"
-  source: https://github.com/corang/uds-package-dubbd-kind
   documentation: https://github.com/defenseunicorns/uds-package-dubbd
 
 variables:
   - name: HOST_PATH
     default: "/var/local-path-provisioner/*"
     prompt: false
-  - name: REALM
-    default: "baby-yoda"
-    prompt: false
-  - name: KC_ADM_USER
-    default: admin
-    prompt: false
-  - name: KC_ADM_PASSWORD
-    default: sup3r-secret-p@ssword
-    prompt: false
-  - name: KEYCLOAK_KEY_FILE
-    default: bigbang.dev.key
-    prompt: false
-  - name: KEYCLOAK_CERT_FILE
-    default: bigbang.dev.cert
-    prompt: false
-  - name: KEYCLOAK_CUSTOMREG_FILE
-    default: assets/customreg.yaml
-    prompt: false
-  - name: KEYCLOAK_REALM_FILE
-    default: assets/realm.json
-    prompt: false
 
 components:
-  - name: load-certs
-    required: true
-    import:
-      name: load-certs
-      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
-    files:
-      - source: scripts/cat_keycloak_cert.sh
-        target: cat_keycloak_cert.sh
-        executable: true
-      - source: scripts/cat_keycloak_key.sh
-        target: cat_keycloak_key.sh
-        executable: true
-    actions:
-      onDeploy:
-        after:
-        - cmd: ./cat_keycloak_cert.sh
-          description: read the cert
-          mute: true
-          setVariables:
-          - name: KEYCLOAK_CERT
-        - cmd: ./cat_keycloak_key.sh
-          description: read the cert
-          mute: true
-          setVariables:
-          - name: KEYCLOAK_KEY
   - name: preflight
     required: true
     import:
       name: preflight
-      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
+  - name: load-certs
+    required: false
+    import:
+      name: load-certs
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
   - name: download-flux
-    required: true
+    required: false
     import:
       name: download-flux
-      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
   - name: bigbang
     required: true
     import:
       name: bigbang
-      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.4.2-skeleton
+      url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
     images:
       - registry1.dso.mil/ironbank/big-bang/p1-keycloak-plugin:3.2.1
       - ghcr.io/kirankt/keycloak-custom-theme:0.1.2
@@ -87,6 +44,81 @@ components:
         version: "###ZARF_PKG_VAR_BIGBANG_VERSION###"
         valuesFiles:
         - values/local-dev.yaml
-        - values/keycloak.yaml
         - values/authservice.yaml
         - values/custom.yaml
+  - name: keycloak-ingressgateway-addon
+    required: true
+    import:
+      name: keycloak-ingressgateway-addon
+      path: uds-idam/idam
+  - name: realm-config-default-files
+    required: true
+    import:
+      name: realm-config-default-files
+      path: uds-idam/idam
+# - name: read-files
+#   required: true
+#   files:
+#     - source: scripts/cat_keycloak_cert.sh
+#       target: cat_keycloak_cert.sh
+#       executable: true
+#     - source: scripts/cat_keycloak_key.sh
+#       target: cat_keycloak_key.sh
+#       executable: true
+#     - source: scripts/cat_keycloak_realm.sh
+#       target: cat_keycloak_realm.sh
+#       executable: true
+#     - source: scripts/cat_keycloak_truststore.sh
+#       target: cat_keycloak_truststore.sh
+#       executable: true
+#     - source: scripts/cat_keycloak_customreg.sh
+#       target: cat_keycloak_customreg.sh
+#       executable: true
+#   actions:
+#     onDeploy:
+#       after:
+#       - cmd: ./cat_keycloak_cert.sh
+#         mute: true
+#         setVariables:
+#         - name: KEYCLOAK_CERT_FILE
+#           sensitive: true
+#           autoIndent: true
+#       - cmd: ./cat_keycloak_key.sh
+#         mute: true
+#         setVariables:
+#         - name: KEYCLOAK_KEY_FILE
+#           sensitive: true
+#           autoIndent: true
+#       - cmd: ./cat_keycloak_realm.sh
+#         mute: true
+#         setVariables:
+#         - name: REALM_IMPORT_FILE
+#           sensitive: true
+#           autoIndent: true
+#       - cmd: ./cat_keycloak_truststore.sh
+#         mute: true
+#         setVariables:
+#         - name: REALM_TRUSTSTORE_FILE
+#           sensitive: true
+#           autoIndent: true
+#       - cmd: ./cat_keycloak_customreg.sh
+#         mute: true
+#         setVariables:
+#         - name: REALM_CUSTOM_REG_FILE
+#           sensitive: true
+#           autoIndent: true
+#       - cmd: rm -f cat_keycloak_cert.sh
+#       - cmd: rm -f cat_keycloak_key.sh
+#       - cmd: rm -f cat_keycloak_realm.sh
+#       - cmd: rm -f cat_keycloak_truststore.sh
+#       - cmd: rm -f cat_keycloak_customreg.sh
+  - name: keycloak-values
+    required: true
+    import:
+      name: keycloak-values
+      path: uds-idam/idam
+  - name: keycloak
+    required: true
+    import:
+      name: keycloak
+      path: uds-idam/idam
