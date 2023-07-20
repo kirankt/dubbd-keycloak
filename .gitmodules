@@ -1,4 +1,0 @@
-[submodule "uds-idam"]
-	path = uds-idam
-	url = git@github.com:defenseunicorns/uds-idam.git
-	branch = require-kk-values

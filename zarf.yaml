@@ -22,12 +22,12 @@ components:
       name: preflight
       url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
   - name: load-certs
-    required: false
+    required: true
     import:
       name: load-certs
       url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
   - name: download-flux
-    required: false
+    required: true
     import:
       name: download-flux
       url: oci://ghcr.io/defenseunicorns/packages/dubbd:0.5.0-skeleton
@@ -50,75 +50,19 @@ components:
     required: true
     import:
       name: keycloak-ingressgateway-addon
-      path: uds-idam/idam
+      url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
   - name: realm-config-default-files
     required: true
     import:
       name: realm-config-default-files
-      path: uds-idam/idam
-# - name: read-files
-#   required: true
-#   files:
-#     - source: scripts/cat_keycloak_cert.sh
-#       target: cat_keycloak_cert.sh
-#       executable: true
-#     - source: scripts/cat_keycloak_key.sh
-#       target: cat_keycloak_key.sh
-#       executable: true
-#     - source: scripts/cat_keycloak_realm.sh
-#       target: cat_keycloak_realm.sh
-#       executable: true
-#     - source: scripts/cat_keycloak_truststore.sh
-#       target: cat_keycloak_truststore.sh
-#       executable: true
-#     - source: scripts/cat_keycloak_customreg.sh
-#       target: cat_keycloak_customreg.sh
-#       executable: true
-#   actions:
-#     onDeploy:
-#       after:
-#       - cmd: ./cat_keycloak_cert.sh
-#         mute: true
-#         setVariables:
-#         - name: KEYCLOAK_CERT_FILE
-#           sensitive: true
-#           autoIndent: true
-#       - cmd: ./cat_keycloak_key.sh
-#         mute: true
-#         setVariables:
-#         - name: KEYCLOAK_KEY_FILE
-#           sensitive: true
-#           autoIndent: true
-#       - cmd: ./cat_keycloak_realm.sh
-#         mute: true
-#         setVariables:
-#         - name: REALM_IMPORT_FILE
-#           sensitive: true
-#           autoIndent: true
-#       - cmd: ./cat_keycloak_truststore.sh
-#         mute: true
-#         setVariables:
-#         - name: REALM_TRUSTSTORE_FILE
-#           sensitive: true
-#           autoIndent: true
-#       - cmd: ./cat_keycloak_customreg.sh
-#         mute: true
-#         setVariables:
-#         - name: REALM_CUSTOM_REG_FILE
-#           sensitive: true
-#           autoIndent: true
-#       - cmd: rm -f cat_keycloak_cert.sh
-#       - cmd: rm -f cat_keycloak_key.sh
-#       - cmd: rm -f cat_keycloak_realm.sh
-#       - cmd: rm -f cat_keycloak_truststore.sh
-#       - cmd: rm -f cat_keycloak_customreg.sh
+      url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
   - name: keycloak-values
     required: true
     import:
       name: keycloak-values
-      path: uds-idam/idam
+      url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
   - name: keycloak
     required: true
     import:
       name: keycloak
-      path: uds-idam/idam
+      url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
