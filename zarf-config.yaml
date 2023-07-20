@@ -9,6 +9,7 @@ package:
   deploy:
     set:
       realm: baby-yoda
+      realm_import_file: baby-yoda.json
       domain: bigbang.dev
       public_key_file: bigbang.dev.key
       public_cert_file: bigbang.dev.cert
