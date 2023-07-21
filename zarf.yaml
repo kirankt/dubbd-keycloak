@@ -58,9 +58,9 @@ components:
       url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
   - name: keycloak-values
     required: true
-    import:
-      name: keycloak-values
-      url: oci://ghcr.io/defenseunicorns/uds-capability/uds-idam:0.1.4-skeleton
+    files:
+      - source: custom-values-keycloak.yaml
+        target: values-keycloak.yaml
   - name: keycloak
     required: true
     import:
